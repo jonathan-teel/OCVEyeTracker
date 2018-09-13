@@ -47,7 +47,7 @@ private:
     float feedForward() {
         return sigmoid(screenInputs[0] * weights[0] + screenInputs[1] * weights[1]);
     }
-    int checkOutput() {
+    int checkOutput(float f) {
     	int res = 0;
     	for(int i=0; i<2; i++)
     	{
@@ -55,15 +55,14 @@ private:
         	{
         		res += -1;
         	}
-		else if(screenInputs[i] < expectedResults[i]-5)
-		{
-			res += 1;
-        	}
-        	else 
-        		res += 0;
-    	}
-    	result = res;
-        
+			else if(screenInputs[i] < expectedResults[i]-5)
+			{
+				res += 1;
+			}
+			else 
+				res += 0;
+		}
+    	result = res * f;    
     }
     void backProp()
     {
@@ -113,9 +112,9 @@ public:
 
     void compute()
     {
-	float f = feedForward();
-	checkOutput();
-	backProp();
+		float f = feedForward();
+		checkOutput(f);
+		backProp();
     }
 
     void printWeights() {
@@ -181,8 +180,8 @@ public:
 
     int run(Perceptron &p, VideoCapture &capture)
     { 
-	Mat frame, eyeTemplate;
-	Rect eyeRect;
+		Mat frame, eyeTemplate;
+		Rect eyeRect;
         if(!capture.isOpened()) return -1;
         sHeight = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
         sWidth = capture.get(CV_CAP_PROP_FRAME_WIDTH);
@@ -192,21 +191,21 @@ public:
         {  
             capture >> frame;
 	    
-	    if(!frame.empty())
-            {
-		Mat frameGray;
-		cvtColor(frame, frameGray, CV_BGR2GRAY);
+			if(!frame.empty())
+			{
+				Mat frameGray;
+				cvtColor(frame, frameGray, CV_BGR2GRAY);
 
-		if(eyeRect.width == 0 && eyeRect.height == 0)
-		{
-		    detectAndDisplay(frameGray, eyeTemplate, eyeRect);
-		}
-		else
-		{
-		    imwrite("eyes.jpg", eyeTemplate);
-		    MatchEyeTemplate(frameGray, eyeTemplate, eyeRect);
-		    rectangle(frame, eyeRect, CV_RGB(0,255,0));
-		}
+				if(eyeRect.width == 0 && eyeRect.height == 0)
+				{
+					detectAndDisplay(frameGray, eyeTemplate, eyeRect);
+				}
+				else
+				{
+					imwrite("eyes.jpg", eyeTemplate);
+					MatchEyeTemplate(frameGray, eyeTemplate, eyeRect);
+					rectangle(frame, eyeRect, CV_RGB(0,255,0));
+				}
             }
             else
             {
@@ -216,13 +215,13 @@ public:
 
             p.compute();
             if(t.elapsedTime() >= cTimeLimit) getNewCPt();
-	    circle(frame, cPt, 10, Scalar(0, 0, 250), thickness, lineType);
-	    imshow(wName, frame);
-	    if(waitKey(1) == 27) 
-	    {
-	    	destroyWindow(wName);
-	    	break;
-	    }
+			circle(frame, cPt, 10, Scalar(0, 0, 250), thickness, lineType);
+			imshow(wName, frame);
+			if(waitKey(1) == 27) 
+			{
+				destroyWindow(wName);
+				break;
+			}
         }
 
     }
@@ -295,14 +294,14 @@ void detectAndDisplay(Mat& frame, Mat& templ, Rect& rect)
     
     for(int i = 0; i < faces.size(); i++)
     {
-	Mat face = frame(faces[i]);
-	eyesCascade.detectMultiScale(face, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, cv::Size(20,20));
+		Mat face = frame(faces[i]);
+		eyesCascade.detectMultiScale(face, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, cv::Size(20,20));
 	
-	if(eyes.size())
-	{
-	    rect = eyes[0] + Point(faces[i].x, faces[i].y);
-	    templ = frame(rect);
-	}
+		if(eyes.size())
+		{
+			rect = eyes[0] + Point(faces[i].x, faces[i].y);
+			templ = frame(rect);
+		}
     }
 }
 
@@ -481,39 +480,39 @@ int main( int argc, const char* argv[] )
     tt.start();
     while(true) {
         cap >> frame;
-        if(!frame.empty()) {
-           
-           Mat frameGray;
-	   cvtColor(frame, frameGray, CV_BGR2GRAY);
-		if(eyeRect.width == 0 && eyeRect.height == 0)
-		{
-		    detectAndDisplay(frameGray, eyeTemplate, eyeRect);
-		}
-		else
-		{
-		    imwrite("eyes.jpg", eyeTemplate);
-		    MatchEyeTemplate(frameGray, eyeTemplate, eyeRect);
-		    rectangle(frame, eyeRect, CV_RGB(0,255,0));
-		}
-	   if(tt.elapsedTime() >= maxPrintTime)
-	   {
-	   	//cout << screenInputs[0] << "   :   " << screenInputs[1] << endl;
-	   	tt.start();
-	   }
-	    circle(frame, Point(screenInputs[0], screenInputs[1]), 10, Scalar(0, 0, 250), -1, 8);
-	   imshow(pupilWindow, frame);
-
+        if(!frame.empty()) 
+		{		
+			Mat frameGray;
+			cvtColor(frame, frameGray, CV_BGR2GRAY);
+			if(eyeRect.width == 0 && eyeRect.height == 0)
+			{
+				detectAndDisplay(frameGray, eyeTemplate, eyeRect);
+			}
+			else
+			{
+				imwrite("eyes.jpg", eyeTemplate);
+				MatchEyeTemplate(frameGray, eyeTemplate, eyeRect);
+				rectangle(frame, eyeRect, CV_RGB(0,255,0));
+			}
+			if(tt.elapsedTime() >= maxPrintTime)
+			{
+				//cout << screenInputs[0] << "   :   " << screenInputs[1] << endl;
+				tt.start();
+			}
+			circle(frame, Point(screenInputs[0], screenInputs[1]), 10, Scalar(0, 0, 250), -1, 8);
+			imshow(pupilWindow, frame);
         }
-        else {
+        else 
+		{
             printf(" --(!) No captured frame -- Break!");
             break;
         }
 
-        if(waitKey(100) == 112) {
+        if(waitKey(100) == 112) 
+		{
             //destroyWindows();
             cout << "Exiting Application.." << endl;
             break;
-
         }
     }
     cap.release();    
