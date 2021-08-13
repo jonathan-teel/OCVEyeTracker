@@ -14,9 +14,6 @@ Use the following command for the required packages :
 
 sudo apt-get install build-essential libgtk2.0-dev libjpeg-dev  libjasper-dev libopenexr-dev cmake python-dev python-numpy python-tk libtbb-dev libeigen2-dev yasm libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev libqt4-dev libqt4-opengl-dev sphinx-common texlive-latex-extra libv4l-dev libdc1394-22-dev libavcodec-dev libavformat-dev libswscale-dev
 
-Download OpenCV2 :
-
-http://104.236.119.198:8000/OPENCV/opencv-2.4.13.zip
 
 --------------------
 
